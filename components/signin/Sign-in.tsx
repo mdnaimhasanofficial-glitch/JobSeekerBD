@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,15 +13,74 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client"
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+type FormData = {
+  email: string
+  password: string
+}
+
+type FormErrors = Partial<Record<keyof FormData, string>>
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState<FormErrors>({})
+
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {}
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required."
+    } else if (!EMAIL_REGEX.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address."
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required."
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters long."
+    }
+
+    return newErrors
+  }
+
+  const handleChange =
+    (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: event.target.value }))
+      setErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const validationErrors = validate()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    const { data, error } = await authClient.signIn.email({
+      email: formData.email,
+      password: formData.password,
+      callbackURL: "/",
+    })
+
+    console.log("Login form data:", formData, data, error)
+  }
+
   return (
     <div
       className={cn(
@@ -52,7 +111,7 @@ export function LoginForm({
         </CardHeader>
 
         <CardContent>
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <FieldGroup className="space-y-4">
               {/* Email Field */}
               <Field className="space-y-1.5">
@@ -66,9 +125,15 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  required
-                  className="h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-indigo-500"
+                  value={formData.email}
+                  onChange={handleChange("email")}
+                  aria-invalid={!!errors.email}
+                  className={cn(
+                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-indigo-500",
+                    errors.email && "border-red-500 focus-visible:ring-red-500"
+                  )}
                 />
+                <FieldError className="text-xs">{errors.email}</FieldError>
               </Field>
 
               {/* Password Field + Forgot Password Link */}
@@ -90,9 +155,16 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  required
-                  className="h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 focus-visible:ring-indigo-500"
+                  value={formData.password}
+                  onChange={handleChange("password")}
+                  aria-invalid={!!errors.password}
+                  className={cn(
+                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 focus-visible:ring-indigo-500",
+                    errors.password &&
+                      "border-red-500 focus-visible:ring-red-500"
+                  )}
                 />
+                <FieldError className="text-xs">{errors.password}</FieldError>
               </Field>
 
               {/* Buttons & Actions */}
