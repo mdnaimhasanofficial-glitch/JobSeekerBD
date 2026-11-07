@@ -55,9 +55,9 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative isolate w-full overflow-hidden border-t border-white/10 bg-black text-white">
+    <footer className="relative isolate w-full overflow-hidden border-t border-border bg-background text-foreground">
       {/* Soft glow bleeding up from the globe background */}
-      <div className="pointer-events-none absolute -top-52 left-1/2 z-0 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-indigo-600/15 blur-[120px]" />
+      <div className="pointer-events-none absolute -top-52 left-1/2 z-0 h-80 w-[42rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[120px]" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pt-16 pb-8 md:px-6 md:pt-24">
         {/* Top Section */}
@@ -73,7 +73,7 @@ export default function Footer() {
               <span className="ml-1 h-2 w-2 rounded-full bg-orange-500" />
             </Link>
 
-            <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
               Bangladesh&apos;s modern job platform. Built for people who take
               their careers seriously.
             </p>
@@ -91,7 +91,7 @@ export default function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-zinc-400 transition-colors duration-200 hover:text-white"
+                      className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     >
                       {link.name}
                     </Link>
@@ -111,7 +111,7 @@ export default function Footer() {
                 key={social.name}
                 href={social.href}
                 aria-label={social.name}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-zinc-300 transition-all duration-200 hover:bg-white/10 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-foreground"
               >
                 <social.icon className="h-4 w-4" />
               </a>
@@ -119,17 +119,18 @@ export default function Footer() {
           </div>
 
           {/* Copyright + Legal Links */}
-          <div className="flex flex-col items-center gap-2 text-xs text-zinc-500 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-3">
             <p>
-              Copyright {new Date().getFullYear()} — <span className="text-zinc-400">JobSeekerBD</span>
+              Copyright {new Date().getFullYear()} —{" "}
+              <span className="text-foreground">JobSeekerBD</span>
             </p>
-            <span className="hidden text-zinc-700 sm:inline">-</span>
+            <span className="hidden text-border sm:inline">-</span>
             <div className="flex items-center gap-3">
-              <Link href="/terms" className="transition-colors hover:text-zinc-300">
+              <Link href="/terms" className="transition-colors hover:text-foreground">
                 Terms &amp; Policy
               </Link>
-              <span className="text-zinc-700">-</span>
-              <Link href="/privacy" className="transition-colors hover:text-zinc-300">
+              <span className="text-border">-</span>
+              <Link href="/privacy" className="transition-colors hover:text-foreground">
                 Privacy Guideline
               </Link>
             </div>
