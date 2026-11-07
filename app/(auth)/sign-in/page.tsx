@@ -1,5 +1,4 @@
-import { LoginForm } from "@/components/signin/Sign-in"
-
+import { LoginForm } from "@/components/auth/SignIn"
 export default function Page() {
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[#09090d] p-6 md:p-10">
