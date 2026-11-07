@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +36,7 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+  const router = useRouter()
 
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {}
@@ -81,6 +83,10 @@ export function LoginForm({
 
     if (error) {
       setApiError(error.message ?? "Invalid email or password.")
+    }
+    if (!error) {
+      router.push("/")
+      router.refresh()
     }
 
     setLoading(false)

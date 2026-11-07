@@ -1,6 +1,6 @@
 "use client"
-
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Users,
   UserRound,
@@ -56,12 +56,13 @@ export function SignupForm({
     confirmPassword: "",
     role: "seeker",
   })
+
   const [errors, setErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
-
+  const router = useRouter()
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {}
 
@@ -117,12 +118,16 @@ export function SignupForm({
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      callbackURL: "http://localhost:3000/sign-in",
+      callbackURL: "/sign-in",
       role: formData.role,
     })
 
     if (error) {
       setApiError(error.message ?? "Something went wrong. Please try again.")
+    }
+    if (!error) {
+      router.push("/")
+      router.refresh()
     }
 
     setLoading(false)
