@@ -1,7 +1,15 @@
 "use client"
 
 import React, { useState } from "react"
-import { cn } from "@/lib/utils"
+import {
+  Users,
+  UserRound,
+  ShieldCheck,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,15 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
+import type { Role } from "@/lib/auth"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -27,18 +30,35 @@ type FormData = {
   email: string
   password: string
   confirmPassword: string
+  role: Role
 }
 
 type FormErrors = Partial<Record<keyof FormData, string>>
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+const ROLE_OPTIONS: {
+  value: Role
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+}[] = [
+  { value: "seeker", label: "Job Seeker", icon: Users },
+  { value: "recruiter", label: "Recruiter", icon: UserRound },
+  { value: "admin", label: "Admin", icon: ShieldCheck },
+]
+
+export function SignupForm({
+  className,
+  ...props
+}: React.ComponentProps<typeof Card>) {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role: "seeker",
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
 
@@ -50,7 +70,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required."
+      newErrors.email = "Email address is required."
     } else if (!EMAIL_REGEX.test(formData.email)) {
       newErrors.email = "Please enter a valid email address."
     }
@@ -74,7 +94,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: event.target.value }))
       setErrors((prev) => ({ ...prev, [field]: undefined }))
+      setApiError(null)
     }
+
+  const handleRoleChange = (role: Role) => {
+    setFormData((prev) => ({ ...prev, role }))
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -92,7 +117,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      callbackURL: "/",
+      callbackURL: "http://localhost:3000/sign-in",
+      role: formData.role,
     })
 
     if (error) {
@@ -100,183 +126,228 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     }
 
     setLoading(false)
-    console.log("Signup form data:", signUpResponse, error, formData)
+    console.log("Signup form data:", signUpResponse, error)
   }
 
+  const inputClasses = (hasError?: string) =>
+    `h-12 rounded-xl border bg-[#0c0c12] pl-11 text-zinc-100 text-sm transition-colors placeholder:text-zinc-500 focus-visible:ring-indigo-500/40 ${
+      hasError
+        ? "border-red-500/70 focus-visible:ring-red-500/40"
+        : "border-zinc-800 focus-visible:border-indigo-500/60"
+    }`
+
   return (
-    <div className="relative flex w-full max-w-md items-center justify-center overflow-hidden bg-white px-4 py-5">
-      {/* Background Soft Glow Effects for White Theme */}
-      <div className="pointer-events-none absolute top-1/4 left-1/2 h-96 w-120 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 bottom-10 h-80 w-100 rounded-full bg-purple-500/10 blur-3xl" />
+    <Card
+      {...props}
+      className={`relative w-full max-w-md rounded-3xl border-zinc-800/80 bg-[#101015] text-zinc-100 shadow-2xl shadow-indigo-950/50 ${className ?? ""}`}
+    >
+      <CardHeader className="space-y-2 text-center">
+        <CardTitle className="text-3xl font-bold tracking-tight text-zinc-50">
+          Create your account
+        </CardTitle>
+        <CardDescription className="text-sm text-zinc-400">
+          Join JobSeekerBD and find your dream job today.
+        </CardDescription>
+      </CardHeader>
 
-      <Card
-        {...props}
-        className="relative z-10 w-full max-w-md rounded-3xl border-zinc-200 bg-white p-4 text-zinc-900 shadow-2xl"
-      >
-        <CardHeader className="space-y-1.5 pb-6 text-center">
-          {/* Logo / Brand Accent */}
-          <div className="mb-2 flex items-center justify-center gap-1 text-2xl font-black tracking-tight select-none">
-            <span className="text-sky-500">JobSeeker</span>
-            <span className="font-extrabold text-orange-500">BD</span>
-            <span className="ml-0.5 inline-block h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+      <CardContent className="pb-8">
+        {apiError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400"
+          >
+            {apiError}
           </div>
+        )}
 
-          <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
-            Create an account
-          </CardTitle>
-          <CardDescription className="text-sm text-zinc-500">
-            Join JobSeekerBD and find your dream job today.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            {apiError && (
-              <div
-                role="alert"
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-600"
-              >
-                {apiError}
-              </div>
-            )}
-            <FieldGroup className="space-y-4">
-              {/* Full Name */}
-              <Field className="space-y-1.5">
-                <FieldLabel
-                  htmlFor="name"
-                  className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                >
-                  Full Name
-                </FieldLabel>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange("name")}
-                  aria-invalid={!!errors.name}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-indigo-500",
-                    errors.name && "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">{errors.name}</FieldError>
-              </Field>
-
-              {/* Email */}
-              <Field className="space-y-1.5">
-                <FieldLabel
-                  htmlFor="email"
-                  className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                >
-                  Email
-                </FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  value={formData.email}
-                  onChange={handleChange("email")}
-                  aria-invalid={!!errors.email}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-indigo-500",
-                    errors.email && "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">{errors.email}</FieldError>
-                <FieldDescription className="text-xs text-zinc-400">
-                  We&apos;ll use this to contact you. Never shared with anyone.
-                </FieldDescription>
-              </Field>
-
-              {/* Password */}
-              <Field className="space-y-1.5">
-                <FieldLabel
-                  htmlFor="password"
-                  className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                >
-                  Password
-                </FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange("password")}
-                  aria-invalid={!!errors.password}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 focus-visible:ring-indigo-500",
-                    errors.password &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">{errors.password}</FieldError>
-                <FieldDescription className="text-xs text-zinc-400">
-                  Must be at least 8 characters long.
-                </FieldDescription>
-              </Field>
-
-              {/* Confirm Password */}
-              <Field className="space-y-1.5">
-                <FieldLabel
-                  htmlFor="confirm-password"
-                  className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                >
-                  Confirm Password
-                </FieldLabel>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange("confirmPassword")}
-                  aria-invalid={!!errors.confirmPassword}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 focus-visible:ring-indigo-500",
-                    errors.confirmPassword &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">
-                  {errors.confirmPassword}
-                </FieldError>
-              </Field>
-
-              {/* Buttons & Actions */}
-              <FieldGroup className="space-y-3 pt-2">
-                <Field className="space-y-3">
-                  {/* Create Account Gradient Button */}
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="h-11 w-full rounded-xl border border-indigo-400/30 bg-linear-to-r from-indigo-500 to-purple-600 font-medium text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:from-indigo-600 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {loading ? "Creating account..." : "Create Account"}
-                  </Button>
-
-                  {/* Sign up with Google Button */}
-                  <Button
-                    variant="outline"
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="role"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Joining JobSeekerBD as
+            </FieldLabel>
+            <div
+              role="radiogroup"
+              aria-label="Account type"
+              className="grid grid-cols-3 gap-2.5 pt-1"
+            >
+              {ROLE_OPTIONS.map((option) => {
+                const Icon = option.icon
+                const selected = formData.role === option.value
+                return (
+                  <button
+                    key={option.value}
                     type="button"
-                    className="h-11 w-full rounded-xl border-zinc-200 bg-white font-medium text-zinc-700 shadow-sm transition-all duration-200 hover:bg-zinc-50 hover:text-zinc-900"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => handleRoleChange(option.value)}
+                    className={`group flex flex-col items-center justify-center gap-1.5 rounded-xl border px-3 py-4 transition-all duration-200 ${
+                      selected
+                        ? "border-indigo-500/70 bg-indigo-500/10 text-zinc-100"
+                        : "border-zinc-800 bg-[#0c0c12] text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
+                    }`}
                   >
-                    Sign up with Google
-                  </Button>
+                    <Icon className="size-5" />
+                    <span className="text-sm font-medium">{option.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </Field>
 
-                  {/* Already have an account footer */}
-                  <FieldDescription className="px-6 pt-2 text-center text-sm text-zinc-500">
-                    Already have an account?{" "}
-                    <a
-                      href="/sign-in"
-                      className="font-medium text-indigo-600 underline underline-offset-4 hover:text-indigo-500"
-                    >
-                      Sign in
-                    </a>
-                  </FieldDescription>
-                </Field>
-              </FieldGroup>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          {/* Full Name */}
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="name"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Full name
+            </FieldLabel>
+            <div className="relative">
+              <UserRound className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="name"
+                type="text"
+                placeholder="Jane Doe"
+                autoComplete="name"
+                value={formData.name}
+                onChange={handleChange("name")}
+                aria-invalid={!!errors.name}
+                className={inputClasses(errors.name)}
+              />
+            </div>
+            <FieldError className="text-xs text-red-400">
+              {errors.name}
+            </FieldError>
+          </Field>
+
+          {/* Email */}
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="email"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Email address
+            </FieldLabel>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange("email")}
+                aria-invalid={!!errors.email}
+                className={inputClasses(errors.email)}
+              />
+            </div>
+            <FieldError className="text-xs text-red-400">
+              {errors.email}
+            </FieldError>
+          </Field>
+
+          {/* Password */}
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="password"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Password
+            </FieldLabel>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="At least 8 characters"
+                autoComplete="new-password"
+                value={formData.password}
+                onChange={handleChange("password")}
+                aria-invalid={!!errors.password}
+                className={`${inputClasses(errors.password)} pr-11`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
+            <FieldError className="text-xs text-red-400">
+              {errors.password}
+            </FieldError>
+          </Field>
+
+          {/* Confirm Password */}
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="confirm-password"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Confirm password
+            </FieldLabel>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="confirm-password"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
+                value={formData.confirmPassword}
+                onChange={handleChange("confirmPassword")}
+                aria-invalid={!!errors.confirmPassword}
+                className={`${inputClasses(errors.confirmPassword)} pr-11`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label={
+                  showConfirmPassword ? "Hide password" : "Show password"
+                }
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
+            <FieldError className="text-xs text-red-400">
+              {errors.confirmPassword}
+            </FieldError>
+          </Field>
+
+          {/* Create Account Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="mt-2 h-12 w-full rounded-xl bg-indigo-500 text-base font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? "Creating account..." : "Sign Up"}
+          </Button>
+
+          {/* Already have an account footer */}
+          <p className="pt-1 text-center text-sm text-zinc-400">
+            Already have an account?{" "}
+            <a
+              href="/sign-in"
+              className="font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
+            >
+              Sign in
+            </a>
+          </p>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

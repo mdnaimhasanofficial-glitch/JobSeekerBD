@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { cn } from "@/lib/utils"
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,13 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 
@@ -32,18 +26,21 @@ type FormErrors = Partial<Record<keyof FormData, string>>
 export function LoginForm({
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<typeof Card>) {
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   })
   const [errors, setErrors] = useState<FormErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {}
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required."
+      newErrors.email = "Email address is required."
     } else if (!EMAIL_REGEX.test(formData.email)) {
       newErrors.email = "Please enter a valid email address."
     }
@@ -61,6 +58,7 @@ export function LoginForm({
     (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: event.target.value }))
       setErrors((prev) => ({ ...prev, [field]: undefined }))
+      setApiError(null)
     }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -72,137 +70,144 @@ export function LoginForm({
       return
     }
 
-    const { data, error } = await authClient.signIn.email({
+    setLoading(true)
+    setApiError(null)
+
+    const { data: signInResponse, error } = await authClient.signIn.email({
       email: formData.email,
       password: formData.password,
       callbackURL: "/",
     })
 
-    console.log("Login form data:", formData, data, error)
+    if (error) {
+      setApiError(error.message ?? "Invalid email or password.")
+    }
+
+    setLoading(false)
+    console.log("Login form data:", signInResponse, error, formData)
   }
 
+  const inputClasses = (hasError?: string) =>
+    `h-12 rounded-xl border bg-[#0c0c12] pl-11 text-zinc-100 text-sm transition-colors placeholder:text-zinc-500 focus-visible:ring-indigo-500/40 ${
+      hasError ? "border-red-500/70 focus-visible:ring-red-500/40" : "border-zinc-800 focus-visible:border-indigo-500/60"
+    }`
+
   return (
-    <div
-      className={cn(
-        "relative flex w-full items-center justify-center overflow-hidden rounded-2xl bg-white px-4 py-5",
-        className
-      )}
+    <Card
       {...props}
+      className={`relative w-full max-w-md rounded-3xl border-zinc-800/80 bg-[#101015] text-zinc-100 shadow-2xl shadow-indigo-950/50 ${className ?? ""}`}
     >
-      {/* Background Soft Glow Effects matching SignupForm */}
-      <div className="pointer-events-none absolute top-1/4 left-1/2 h-96 w-130 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 bottom-10 h-80 w-120 rounded-full bg-purple-500/10 blur-3xl" />
+      <CardHeader className="space-y-2 text-center">
+        <CardTitle className="text-3xl font-bold tracking-tight text-zinc-50">
+          Welcome back
+        </CardTitle>
+        <CardDescription className="text-sm text-zinc-400">
+          Sign in to your JobSeekerBD account to continue.
+        </CardDescription>
+      </CardHeader>
 
-      <Card className="relative z-10 w-full max-w-md rounded-3xl border-zinc-200 bg-white p-4 text-zinc-900 shadow-2xl">
-        <CardHeader className="space-y-1.5 pb-6 text-center">
-          {/* Logo / Brand Accent */}
-          <div className="mb-2 flex items-center justify-center gap-1 text-2xl font-black tracking-tight select-none">
-            <span className="text-sky-500">JobSeeker</span>
-            <span className="font-extrabold text-orange-500">BD</span>
-            <span className="ml-0.5 inline-block h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+      <CardContent className="pb-8">
+        {apiError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-400"
+          >
+            {apiError}
           </div>
+        )}
 
-          <CardTitle className="text-2xl font-bold tracking-tight text-zinc-900">
-            Login to your account
-          </CardTitle>
-          <CardDescription className="text-sm text-zinc-500">
-            Enter your email below to login to your JobSeekerBD account.
-          </CardDescription>
-        </CardHeader>
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {/* Email */}
+          <Field className="space-y-2">
+            <FieldLabel
+              htmlFor="email"
+              className="text-sm font-medium text-zinc-300"
+            >
+              Email address
+            </FieldLabel>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange("email")}
+                aria-invalid={!!errors.email}
+                className={inputClasses(errors.email)}
+              />
+            </div>
+            <FieldError className="text-xs text-red-400">{errors.email}</FieldError>
+          </Field>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            <FieldGroup className="space-y-4">
-              {/* Email Field */}
-              <Field className="space-y-1.5">
-                <FieldLabel
-                  htmlFor="email"
-                  className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                >
-                  Email
-                </FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  value={formData.email}
-                  onChange={handleChange("email")}
-                  aria-invalid={!!errors.email}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-indigo-500",
-                    errors.email && "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">{errors.email}</FieldError>
-              </Field>
+          {/* Password */}
+          <Field className="space-y-2">
+            <div className="flex items-center justify-between">
+              <FieldLabel
+                htmlFor="password"
+                className="text-sm font-medium text-zinc-300"
+              >
+                Password
+              </FieldLabel>
+              <a
+                href="#"
+                className="text-xs font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+              >
+                Forgot your password?
+              </a>
+            </div>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="At least 8 characters"
+                autoComplete="current-password"
+                value={formData.password}
+                onChange={handleChange("password")}
+                aria-invalid={!!errors.password}
+                className={`${inputClasses(errors.password)} pr-11`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-300"
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
+            <FieldError className="text-xs text-red-400">
+              {errors.password}
+            </FieldError>
+          </Field>
 
-              {/* Password Field + Forgot Password Link */}
-              <Field className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <FieldLabel
-                    htmlFor="password"
-                    className="text-xs font-semibold tracking-wider text-zinc-700 uppercase"
-                  >
-                    Password
-                  </FieldLabel>
-                  <a
-                    href="#"
-                    className="text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-500"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange("password")}
-                  aria-invalid={!!errors.password}
-                  className={cn(
-                    "h-11 rounded-xl border-zinc-200 bg-zinc-50 text-zinc-900 focus-visible:ring-indigo-500",
-                    errors.password &&
-                      "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-                <FieldError className="text-xs">{errors.password}</FieldError>
-              </Field>
+          {/* Login Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="mt-2 h-12 w-full rounded-xl bg-indigo-500 text-base font-semibold text-white shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? "Signing in..." : "Sign In"}
+          </Button>
 
-              {/* Buttons & Actions */}
-              <FieldGroup className="space-y-3 pt-2">
-                <Field className="space-y-3">
-                  {/* Login Button */}
-                  <Button
-                    type="submit"
-                    className="h-11 w-full rounded-xl border border-indigo-400/30 bg-linear-to-r from-indigo-500 to-purple-600 font-medium text-white shadow-lg shadow-indigo-500/25 transition-all duration-300 hover:from-indigo-600 hover:to-purple-700"
-                  >
-                    Login
-                  </Button>
-
-                  {/* Login with Google Button */}
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="h-11 w-full rounded-xl border-zinc-200 bg-white font-medium text-zinc-700 shadow-sm transition-all duration-200 hover:bg-zinc-50 hover:text-zinc-900"
-                  >
-                    Login with Google
-                  </Button>
-
-                  {/* Sign Up Redirect Link */}
-                  <FieldDescription className="px-6 pt-2 text-center text-sm text-zinc-500">
-                    Don&apos;t have an account?{" "}
-                    <a
-                      href="/sign-up"
-                      className="font-medium text-indigo-600 underline underline-offset-4 hover:text-indigo-500"
-                    >
-                      Sign up
-                    </a>
-                  </FieldDescription>
-                </Field>
-              </FieldGroup>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          {/* Don't have an account footer */}
+          <p className="pt-1 text-center text-sm text-zinc-400">
+            Don&apos;t have an account?{" "}
+            <a
+              href="/sign-up"
+              className="font-semibold text-indigo-400 transition-colors hover:text-indigo-300"
+            >
+              Sign up
+            </a>
+          </p>
+        </form>
+      </CardContent>
+    </Card>
   )
 }
