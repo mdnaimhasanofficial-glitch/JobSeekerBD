@@ -39,6 +39,7 @@ export default function Navbar() {
     { name: "Browse Jobs", href: "/jobs" },
     { name: "Company", href: "/company" },
     { name: "Pricing", href: "/pricing" },
+    { name: "Dashboard", href: `/dashboard/${session?.user?.role}` },
   ]
 
   return (
@@ -93,7 +94,9 @@ export default function Navbar() {
                   <p className="max-w-32 truncate text-sm font-semibold text-foreground">
                     {userName}
                   </p>
-                  <p className="text-xs text-muted-foreground">{session?.user.role}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {session?.user.role}
+                  </p>
                 </div>
 
                 <ChevronDown
@@ -225,8 +228,12 @@ export default function Navbar() {
               </div>
 
               <div className="min-w-0">
-                <p className="truncate font-semibold text-foreground">{userName}</p>
-                <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                <p className="truncate font-semibold text-foreground">
+                  {userName}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </p>
               </div>
             </div>
           )}
