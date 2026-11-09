@@ -47,11 +47,6 @@ function ThemeHotkey() {
         return
       }
 
-      // Toggle theme with the "d" key
-      if (event.key.toLowerCase() !== "d") {
-        return
-      }
-
       if (isTypingTarget(event.target)) {
         return
       }
