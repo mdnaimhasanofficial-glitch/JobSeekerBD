@@ -1,5 +1,4 @@
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+const BASE_URL =process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
 
 export const createJob = async (jobData: Record<string, unknown>) => {
   const res = await fetch(`${BASE_URL}/jobs`, {
