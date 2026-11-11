@@ -27,7 +27,7 @@ const ManageJobsDelete = ({ job }: { job: Job }) => {
         aria-label="Delete"
         onClick={handleDelete}
       >
-        <Trash2Icon className="text-muted-foreground" />
+        <Trash2Icon className="text-amber-500" />
       </Button>
     </div>
   )

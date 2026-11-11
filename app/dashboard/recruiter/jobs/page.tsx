@@ -43,6 +43,12 @@ const FREQ_SHORT: Record<string, string> = {
   "per year": "/ yr",
 }
 
+// 25000 -> "25K", 950 -> "950" (keeps the compensation column narrow)
+const COMPACT = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+})
+
 // Demo data kept for reference. Real data now comes from `getJobs()` (API).
 
 // const JOBS: Job[] = [
@@ -175,8 +181,8 @@ const STATUS_DOTS: Record<Job["status"], string> = {
 function Compensation({ job }: { job: Job }) {
   return (
     <span className="text-sm tabular-nums">
-      ৳{job.minSalary.toLocaleString("en-US")} – ৳
-      {job.maxSalary.toLocaleString("en-US")}{" "}
+      ৳{COMPACT.format(job.minSalary)} – ৳
+      {COMPACT.format(job.maxSalary)}{" "}
       <span className="text-muted-foreground">{FREQ_SHORT[job.frequency]}</span>
     </span>
   )
@@ -214,7 +220,7 @@ export default async function ManageJobsPage() {
   // console.log(JOBS)
 
   return (
-    <div className="mx-auto my-10 max-w-6xl">
+    <div className="mx-auto my-10 max-w-7xl">
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground">
           <Link
@@ -253,7 +259,7 @@ export default async function ManageJobsPage() {
       </div>
 
       <Card className="mt-8 rounded-2xl border-border/70">
-        <Table className="[&_td]:px-4 [&_td]:py-3.5 [&_th]:px-4 [&_th]:py-3.5">
+        <Table className="[&_td]:px-3 [&_td]:py-3.5 [&_th]:px-3 [&_th]:py-3.5">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="text-xs text-muted-foreground">
@@ -268,7 +274,7 @@ export default async function ManageJobsPage() {
               <TableHead className="text-xs text-muted-foreground">
                 Compensation
               </TableHead>
-              <TableHead className="hidden text-xs text-muted-foreground md:table-cell">
+              <TableHead className="hidden text-xs text-muted-foreground xl:table-cell">
                 Applicants
               </TableHead>
               <TableHead className="text-xs text-muted-foreground">
@@ -289,7 +295,9 @@ export default async function ManageJobsPage() {
                   <div className="flex items-center gap-3">
                     <CategoryIcon category={job.category} />
                     <div>
-                      <p className="text-sm font-medium">{job.title}</p>
+                      <p className="max-w-[180px] truncate text-sm font-medium">
+                        {job.title}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {job.category.replace(" & ", " ")}
                       </p>
@@ -313,7 +321,7 @@ export default async function ManageJobsPage() {
                 <TableCell>
                   <Compensation job={job} />
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
+                <TableCell className="hidden xl:table-cell">
                   <span className="flex items-center gap-1.5 text-sm">
                     <UsersIcon className="size-3.5 text-muted-foreground" />
                     {job.applicants ?? 0} Candidates
@@ -339,7 +347,10 @@ export default async function ManageJobsPage() {
                 <TableCell className="pr-4 text-right">
                   <div className="flex items-center justify-end gap-1">
                     <Button variant="outline" size="sm">
-                      <PencilLineIcon data-icon="inline-start" />
+                      <PencilLineIcon
+                        data-icon="inline-start"
+                        className="text-indigo-500"
+                      />
                       Update
                     </Button>
                     <ManageJobsDelete job={job} />
