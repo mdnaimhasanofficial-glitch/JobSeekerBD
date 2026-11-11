@@ -10,7 +10,6 @@ import {
   PaletteIcon,
   PencilLineIcon,
   PlusIcon,
-  Trash2Icon,
   UsersIcon,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -26,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { getJobs, type Job } from "@/lib/api/jobs"
+import ManageJobsDelete from "@/app/components/ManageJobsDelete"
 
 const CATEGORY_META: Record<string, { icon: LucideIcon; color: string }> = {
   "Engineering & Tech": { icon: CodeIcon, color: "text-indigo-500" },
@@ -212,6 +212,7 @@ function formatDate(iso: string) {
 export default async function ManageJobsPage() {
   const JOBS: Job[] = await getJobs()
   // console.log(JOBS)
+
   return (
     <div className="mx-auto my-10 max-w-6xl">
       <div className="space-y-2">
@@ -341,9 +342,7 @@ export default async function ManageJobsPage() {
                       <PencilLineIcon data-icon="inline-start" />
                       Update
                     </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label="Delete">
-                      <Trash2Icon className="text-muted-foreground" />
-                    </Button>
+                    <ManageJobsDelete job={job} />
                     <Button
                       variant="ghost"
                       size="icon-sm"

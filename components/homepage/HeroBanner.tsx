@@ -107,10 +107,10 @@ export default function HeroBanner() {
       </div>
 
       {/* Bottom Assisting Text - On The Globe (As in Figma) */}
-      <div className="relative z-10 mx-auto mt-auto w-full max-w-4xl px-4 pt-24 pb-14 text-center md:pb-20">
-        <h2 className="mx-auto max-w-xl text-xl leading-snug font-medium text-foreground/90 drop-shadow-md sm:text-2xl md:text-3xl">
+      <div className="relative z-10 mx-auto mt-auto w-full max-w-4xl px-4 pt-24 pb-14 text-center text-white md:pb-20">
+        <h2 className="mx-auto max-w-xl text-xl leading-snug font-medium text-foreground/90 text-white drop-shadow-md sm:text-2xl md:text-3xl">
           Assisting over{" "}
-          <span className="font-semibold text-foreground">15,000 job seekers</span>{" "}
+          <span className="font-semibold text-white">15,000 job seekers</span>{" "}
           find their dream positions.
         </h2>
       </div>

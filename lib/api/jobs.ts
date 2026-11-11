@@ -11,7 +11,7 @@ export type Job = {
   minSalary: number
   maxSalary: number
   frequency: string
-  status: string
+  status: "Active" | "Expired" | "Draft"
   deadline: string | null
   posted: string
   applicants?: number
