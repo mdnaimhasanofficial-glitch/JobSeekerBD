@@ -24,19 +24,7 @@ import {
 import { createJob } from "@/lib/actions/jobs"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
-
-const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"]
-
-const JOB_CATEGORIES = [
-  "Engineering & Tech",
-  "Software Development",
-  "Design & Creative",
-  "Marketing & Sales",
-  "Data & Analytics",
-  "Business & Operations",
-]
-
-const FREQUENCIES = ["per hour", "per day", "per month", "per year"]
+import { FREQUENCIES, JOB_CATEGORIES, JOB_TYPES } from "@/lib/job-constants"
 
 export default function NewJobPage() {
   const router = useRouter()
