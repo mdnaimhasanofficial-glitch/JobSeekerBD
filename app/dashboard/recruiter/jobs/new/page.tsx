@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createJob } from "@/lib/actions/jobs"
+import { toast } from "@/components/ui/toast"
+import { useRouter } from "next/navigation"
 
 const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"]
 
@@ -37,6 +39,7 @@ const JOB_CATEGORIES = [
 const FREQUENCIES = ["per hour", "per day", "per month", "per year"]
 
 export default function NewJobPage() {
+  const router = useRouter()
   const [jobType, setJobType] = useState("Full-time")
 
   // Easy data style: one plain form, one plain object on submit, then POST it.
@@ -52,10 +55,16 @@ export default function NewJobPage() {
     try {
       const result = await createJob(jobData)
       console.log("Job created:", result)
+      toast.add({
+        title: "Job created",
+        description: "The job has been successfully",
+      })
       form.reset()
     } catch (error) {
-      console.error("Failed to create job:", error)
+      console.error("Failed to create job", error)
+      toast.close("Failed to create job:")
     }
+    router.push("/dashboard/recruiter/jobs")
   }
 
   return (
@@ -124,7 +133,6 @@ export default function NewJobPage() {
                 </Label>
                 <Select
                   name="category"
-
                   defaultValue={JOB_CATEGORIES[0]}
                   required
                 >

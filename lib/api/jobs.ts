@@ -17,7 +17,8 @@ export type Job = {
   applicants?: number
 }
 
-export const getJobs = async (): Promise<Job[]> => {
-  const res = await fetch(`${BASE_URL}/jobs`, { cache: "no-store" })
+export const getJobs = async (query = ""): Promise<Job[]> => {
+  const url = query ? `${BASE_URL}/jobs?${query}` : `${BASE_URL}/jobs`
+  const res = await fetch(url, { cache: "no-store" })
   return res.json()
 }

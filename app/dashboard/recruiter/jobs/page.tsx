@@ -49,123 +49,6 @@ const COMPACT = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1,
 })
 
-// Demo data kept for reference. Real data now comes from `getJobs()` (API).
-
-// const JOBS: Job[] = [
-//   {
-//     id: 1,
-//     title: "Frontend Developer",
-//     company: "HirePulse Network",
-//     category: "Engineering & Tech",
-//     location: "Dhaka, Bangladesh",
-//     remote: true,
-//     jobType: "Full-time",
-//     minSalary: 25000,
-//     maxSalary: 40000,
-//     frequency: "per month",
-//     applicants: 34,
-//     status: "Active",
-//     deadline: "2026-12-30",
-//     posted: "4d ago",
-//   },
-//   {
-//     id: 2,
-//     title: "Senior Product Designer",
-//     company: "HirePulse Labs",
-//     category: "Design & Creative",
-//     location: "Dhaka, Bangladesh (Hybrid)",
-//     remote: false,
-//     jobType: "Full-time",
-//     minSalary: 90000,
-//     maxSalary: 115000,
-//     frequency: "per year",
-//     applicants: 19,
-//     status: "Active",
-//     deadline: "2027-01-14",
-//     posted: "1w ago",
-//   },
-//   {
-//     id: 3,
-//     title: "DevOps Specialist",
-//     company: "HirePulse Platform",
-//     category: "Engineering & Tech",
-//     location: "Chattogram, Bangladesh",
-//     remote: false,
-//     jobType: "Full-time",
-//     minSalary: 95000,
-//     maxSalary: 120000,
-//     frequency: "per year",
-//     applicants: 12,
-//     status: "Active",
-//     deadline: "2026-12-30",
-//     posted: "2w ago",
-//   },
-//   {
-//     id: 4,
-//     title: "Product Marketing Lead",
-//     company: "HirePulse Network",
-//     category: "Marketing & Sales",
-//     location: "Dhaka, Bangladesh",
-//     remote: true,
-//     jobType: "Full-time",
-//     minSalary: 80000,
-//     maxSalary: 105000,
-//     frequency: "per year",
-//     applicants: 27,
-//     status: "Active",
-//     deadline: "2027-01-15",
-//     posted: "5d ago",
-//   },
-//   {
-//     id: 5,
-//     title: "QA Automation Engineer",
-//     company: "HirePulse Platform",
-//     category: "Software Development",
-//     location: "Sylhet, Bangladesh (Hybrid)",
-//     remote: false,
-//     jobType: "Part-time",
-//     minSalary: 35000,
-//     maxSalary: 50000,
-//     frequency: "per month",
-//     applicants: 8,
-//     status: "Expired",
-//     deadline: "2026-10-01",
-//     posted: "3w ago",
-//   },
-//   {
-//     id: 6,
-//     title: "UI/UX Designer",
-//     company: "HirePulse Labs",
-//     category: "Design & Creative",
-//     location: "Dhaka, Bangladesh",
-//     remote: true,
-//     jobType: "Contract",
-//     minSalary: 40000,
-//     maxSalary: 60000,
-//     frequency: "per month",
-//     applicants: 15,
-//     status: "Active",
-//     deadline: "2026-12-20",
-//     posted: "6d ago",
-//   },
-//   {
-//     id: 7,
-//     title: "Business Development Manager",
-//     company: "HirePulse Network",
-//     category: "Business & Operations",
-//     location: "Dhaka, Bangladesh",
-//     remote: false,
-//     jobType: "Full-time",
-//     minSalary: 60000,
-//     maxSalary: 90000,
-//     frequency: "per month",
-//     applicants: 21,
-//     status: "Draft",
-//     deadline: null,
-//     posted: "1h ago",
-//   },
-// ]
-
 const STATUS_STYLES: Record<Job["status"], string> = {
   Active: "text-emerald-600 dark:text-emerald-400",
   Expired: "text-muted-foreground",
@@ -181,8 +64,7 @@ const STATUS_DOTS: Record<Job["status"], string> = {
 function Compensation({ job }: { job: Job }) {
   return (
     <span className="text-sm tabular-nums">
-      ৳{COMPACT.format(job.minSalary)} – ৳
-      {COMPACT.format(job.maxSalary)}{" "}
+      ৳{COMPACT.format(job.minSalary)} – ৳{COMPACT.format(job.maxSalary)}{" "}
       <span className="text-muted-foreground">{FREQ_SHORT[job.frequency]}</span>
     </span>
   )
