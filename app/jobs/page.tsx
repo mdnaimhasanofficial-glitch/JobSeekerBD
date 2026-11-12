@@ -23,9 +23,10 @@ export default async function BrowseJobsPage({
   // 1. Read the current filters from the URL.
   const filters = parseJobFilters(await searchParams)
 
-  // 2. Fetch jobs (keyword search runs on the API), then apply the
-  //    remaining filters, sort, and pagination locally.
-  const allJobs = await getJobs(buildJobsQuery(filters))
+  // 2. Fetch jobs, then apply search, filters, sort, and pagination locally.
+  //    Search goes to `matchesSearch` (not the API) so it can search several
+  //    fields and tolerate typos.
+  const allJobs = await getJobs(buildJobsQuery({ ...filters, search: "" }))
   const filteredJobs = applyJobFilters(allJobs, filters)
   const { jobs, page, totalPages } = paginateJobs(filteredJobs, filters.page)
   const currentFilters = { ...filters, page }

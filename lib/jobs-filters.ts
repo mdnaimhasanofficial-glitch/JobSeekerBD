@@ -66,10 +66,12 @@ export function buildJobsQuery(filters: Partial<JobFilters>): string {
   return params.toString()
 }
 
-// Keyword search is handled by the API; the rest is applied here so the
-// browse page works even when the API doesn't support these filters yet.
+// All filters are applied here, including the keyword search (see
+// `matchesSearch`) so it can look across several fields and tolerate small
+// typos, even though the API has its own basic search.
 export function applyJobFilters(jobs: Job[], filters: JobFilters): Job[] {
   const filtered = jobs.filter((job) => {
+    const matchesKeyword = matchesSearch(job, filters.search)
     const matchesType = !filters.jobType || filters.jobType === job.jobType
     const matchesCategory =
       !filters.category || filters.category === job.category
@@ -77,7 +79,13 @@ export function applyJobFilters(jobs: Job[], filters: JobFilters): Job[] {
     // Older records may not have a status yet, so only exclude known inactive ones.
     const isActive = job.status !== "Expired" && job.status !== "Draft"
 
-    return matchesType && matchesCategory && matchesRemote && isActive
+    return (
+      matchesKeyword &&
+      matchesType &&
+      matchesCategory &&
+      matchesRemote &&
+      isActive
+    )
   })
 
   if (filters.sort === "salary-high") {
@@ -111,4 +119,59 @@ export function countJobsBy(
     counts[job[key]] = (counts[job[key]] ?? 0) + 1
     return counts
   }, {})
+}
+
+// Keyword matching for search. Rules:
+// - Case-insensitive and partial: "dev" matches "MERN Stack Developer".
+// - Searches several fields: title, company, location, category, job type.
+// - Multi-word: every word must match somewhere ("react intern" works).
+// - Typo tolerant: 1–2 letter mistakes still match ("designr" -> "Designer").
+function matchesSearch(job: Job, search: string): boolean {
+  const words = search.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return true
+
+  const fields = [
+    job.title,
+    job.company,
+    job.location,
+    job.category,
+    job.jobType,
+  ].map((field) => field.toLowerCase())
+
+  return words.every((word) =>
+    fields.some(
+      (field) => field.includes(word) || fieldHasSimilarWord(field, word)
+    )
+  )
+}
+
+// Checks a field's individual words against the search word with a small
+// edit-distance allowance, so "designr" still matches "designer".
+function fieldHasSimilarWord(field: string, word: string): boolean {
+  if (word.length < 4) return false // too short to guess a typo reliably
+
+  const maxDistance = word.length >= 6 ? 2 : 1
+  return field.split(/\s+/).some((fieldWord) => {
+    const clean = fieldWord.replace(/[^a-z0-9]/g, "")
+    return clean.length >= 4 && levenshtein(word, clean) <= maxDistance
+  })
+}
+
+// Minimum number of single-character edits to turn `a` into `b`.
+function levenshtein(a: string, b: string): number {
+  const rows = Array.from({ length: a.length + 1 }, (_, i) => [i])
+  const firstRow = rows[0]
+  for (let j = 1; j <= b.length; j++) firstRow[j] = j
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      rows[i][j] = Math.min(
+        rows[i - 1][j] + 1, // delete
+        rows[i][j - 1] + 1, // insert
+        rows[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // replace
+      )
+    }
+  }
+
+  return rows[a.length][b.length]
 }
