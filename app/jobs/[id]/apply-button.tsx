@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useSession } from "@/lib/auth-client"
 import { Job } from "@/lib/api/jobs"
+import { NewApplication } from "@/lib/api/applications"
 import { ApplyToAJob } from "@/lib/actions/application"
 
 // Client component because useSession/useRouter are React hooks and can't
@@ -18,18 +19,37 @@ export function ApplyButton({ job }: { job: Job }) {
       router.push(`/sign-in?redirectTo=/jobs/${job._id}`)
       return
     } else if (user.role === "seeker") {
-      const application = {
+      // Full application document: relations, job snapshot, applicant details
+      // and lifecycle fields. Optional fields (phone, resumeUrl, coverLetter,
+      // experience, skills) are sent once the profile/application form
+      // provides them.
+      const appliedAt = new Date().toISOString()
+      const application: NewApplication = {
         jobId: job._id,
         userId: user.id,
-        email: user.email,
+
         jobTitle: job.title,
         companyName: job.company,
+        companyLogo: job.companyLogo,
+        jobType: job.jobType,
+        location: job.location,
+
+        fullName: user.name,
+        email: user.email,
+
+        status: "Pending",
+        appliedAt,
+        updatedAt: appliedAt,
       }
 
-      const result = await ApplyToAJob(application)
-      if (result.insertedId) {
-        console.log("Application submitted successfully")
-        router.push("/jobs")
+      try {
+        const result = await ApplyToAJob(application)
+        if (result.insertedId) {
+          console.log("Application submitted successfully")
+          router.push("/jobs")
+        }
+      } catch (error) {
+        console.error("Failed to submit application:", error)
       }
     } else {
       console.log("user is not a job seeker")
