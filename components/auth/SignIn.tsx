@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -37,6 +37,13 @@ export function LoginForm({
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Where to send the user after a successful login. Only allow relative
+  // paths so the query param can't redirect to an external site.
+  const redirectToParam = searchParams.get("redirectTo")
+  const redirectTo =
+    redirectToParam && redirectToParam.startsWith("/") ? redirectToParam : "/"
 
   const validate = (): FormErrors => {
     const newErrors: FormErrors = {}
@@ -78,14 +85,14 @@ export function LoginForm({
     const { data: signInResponse, error } = await authClient.signIn.email({
       email: formData.email,
       password: formData.password,
-      callbackURL: "/",
+      callbackURL: redirectTo,
     })
 
     if (error) {
       setApiError(error.message ?? "Invalid email or password.")
     }
     if (!error) {
-      router.push("/")
+      router.push(redirectTo)
       router.refresh()
     }
 

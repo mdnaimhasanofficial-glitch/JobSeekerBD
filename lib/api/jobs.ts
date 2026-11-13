@@ -15,10 +15,28 @@ export type Job = {
   deadline: string | null
   posted: string
   applicants?: number
+  // Optional details shown on the job details page (when the API provides them)
+  // API sends responsibilities/qualifications as plain strings
+  description?: string
+  responsibilities?: string
+  qualifications?: string
+  skills?: string[]
+  benefits?: string[]
+  experience?: string
+  verified?: boolean
+  companyLogo?: string
+  companyWebsite?: string
+  companySize?: string
+  companyIndustry?: string
 }
 
 export const getJobs = async (query = ""): Promise<Job[]> => {
   const url = query ? `${BASE_URL}/jobs?${query}` : `${BASE_URL}/jobs`
   const res = await fetch(url, { cache: "no-store" })
+  return res.json()
+}
+
+export const getJobsById = async (jobId: string) => {
+  const res = await fetch(`${BASE_URL}/jobs/${jobId}`)
   return res.json()
 }

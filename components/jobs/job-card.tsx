@@ -1,3 +1,5 @@
+"use client"
+
 import {
   BanknoteIcon,
   BookmarkIcon,
@@ -11,8 +13,9 @@ import {
   BriefcaseIcon,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
-import type { Job } from "@/lib/api/jobs"
+import { type Job } from "@/lib/api/jobs"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation"
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
   "Engineering & Tech": CodeIcon,
@@ -47,10 +50,18 @@ function SalaryBadge({ job }: { job: Job }) {
 }
 
 export function JobCard({ job }: { job: Job }) {
+  const router = useRouter()
   const CategoryIcon = CATEGORY_ICONS[job.category] ?? BriefcaseIcon
 
+  const handleViewJobDetails = (jobId: string) => {
+    router.push(`/jobs/${jobId}`)
+  }
+
   return (
-    <article className="flex items-start gap-4 rounded-2xl border bg-card p-5 transition-colors hover:border-primary/40">
+    <article
+      onClick={() => handleViewJobDetails(job._id)}
+      className="flex items-start gap-4 rounded-2xl border bg-card p-5 transition-colors hover:border-primary/40"
+    >
       <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-muted/50">
         <CategoryIcon className="size-5 text-muted-foreground" />
       </span>

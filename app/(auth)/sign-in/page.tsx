@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { LoginForm } from "@/components/auth/SignIn"
 export default function Page() {
   return (
@@ -7,7 +8,9 @@ export default function Page() {
       <div className="pointer-events-none absolute bottom-0 left-1/4 h-80 w-96 rounded-full bg-purple-600/10 blur-[120px]" />
 
       <div className="relative z-10 w-full max-w-md">
-        <LoginForm />
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
