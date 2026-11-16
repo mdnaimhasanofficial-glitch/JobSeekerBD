@@ -25,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { getJobs, type Job } from "@/lib/api/jobs"
-import ManageJobsDelete from "@/app/components/ManageJobsDelete"
+import ManageJobsDelete from "@/components/dashboard/manage-jobs-delete"
 
 const CATEGORY_META: Record<string, { icon: LucideIcon; color: string }> = {
   "Engineering & Tech": { icon: CodeIcon, color: "text-indigo-500" },
@@ -99,7 +99,6 @@ function formatDate(iso: string) {
 
 export default async function ManageJobsPage() {
   const JOBS: Job[] = await getJobs()
-  // console.log(JOBS)
 
   return (
     <div className="mx-auto my-10 max-w-7xl">

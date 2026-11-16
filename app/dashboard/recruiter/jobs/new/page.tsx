@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createJob } from "@/lib/actions/jobs"
+import { createJob } from "@/lib/api/jobs"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
 import { FREQUENCIES, JOB_CATEGORIES, JOB_TYPES } from "@/lib/job-constants"
@@ -41,18 +41,21 @@ export default function NewJobPage() {
     }
 
     try {
-      const result = await createJob(jobData)
-      console.log("Job created:", result)
+      await createJob(jobData)
       toast.add({
         title: "Job created",
-        description: "The job has been successfully",
+        description: "The job has been created successfully.",
       })
       form.reset()
+      router.push("/dashboard/recruiter/jobs")
     } catch (error) {
-      console.error("Failed to create job", error)
-      toast.close("Failed to create job:")
+      console.error("Failed to create job:", error)
+      toast.add({
+        title: "Failed to create job",
+        description: "Something went wrong. Please try again.",
+        type: "error",
+      })
     }
-    router.push("/dashboard/recruiter/jobs")
   }
 
   return (
@@ -180,7 +183,7 @@ export default function NewJobPage() {
                 <div>
                   <p className="text-sm font-semibold">Remote Work Allowed</p>
                   <p className="text-xs text-muted-foreground">
-                    Remote Work Allowed (Optional)
+                    Candidates can apply from anywhere
                   </p>
                 </div>
               </div>
@@ -190,7 +193,7 @@ export default function NewJobPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="location">Job Location (location)</Label>
+                  <Label htmlFor="location">Job Location</Label>
                   <span className="text-[10px] text-muted-foreground">
                     Required
                   </span>
@@ -208,9 +211,7 @@ export default function NewJobPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deadline">
-                  Application Deadline (deadline)
-                </Label>
+                <Label htmlFor="deadline">Application Deadline</Label>
                 <div className="relative">
                   <CalendarIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -248,11 +249,7 @@ export default function NewJobPage() {
               </div>
               <div className="space-y-2">
                 <Label>Frequency</Label>
-                <Select
-                  name="frequency"
-                  // items={FREQUENCIES}
-                  defaultValue="per hour"
-                >
+                <Select name="frequency" defaultValue="per hour">
                   <SelectTrigger className="h-11 w-full rounded-xl">
                     <SelectValue />
                   </SelectTrigger>

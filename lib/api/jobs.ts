@@ -40,3 +40,31 @@ export const getJobsById = async (jobId: string) => {
   const res = await fetch(`${BASE_URL}/jobs/${jobId}`)
   return res.json()
 }
+
+export const createJob = async (jobData: Record<string, unknown>) => {
+  const res = await fetch(`${BASE_URL}/jobs`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(jobData),
+  })
+
+  if (!res.ok) {
+    throw new Error(`Failed to create job (status ${res.status})`)
+  }
+
+  return res.json()
+}
+
+export const deleteJob = async (jobId: string) => {
+  const res = await fetch(`${BASE_URL}/jobs/${jobId}`, {
+    method: "DELETE",
+  })
+
+  if (!res.ok) {
+    throw new Error(`Failed to delete job (status ${res.status})`)
+  }
+
+  return res.json()
+}

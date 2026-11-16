@@ -1,10 +1,8 @@
 import { headers } from "next/headers"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
-import {
-  getApplicationsByUser,
-  type Application,
-} from "@/lib/api/applications"
+import { getApplications } from "@/lib/api/applications"
+import type { ApplicationRow } from "@/lib/types/applications"
 import { timeAgo } from "@/lib/utils"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { ApplicationStatusBadge } from "@/components/applications/application-status-badge"
@@ -27,12 +25,12 @@ type ApplicationsPageProps = {
 export default async function MyApplicationsPage({
   searchParams,
 }: ApplicationsPageProps) {
-  // The seeker layout already guarantees a seeker session, but we still need
-  // the user id to load their applications from the database.
   const session = await auth.api.getSession({ headers: await headers() })
   const userId = session?.user.id
 
-  const applications = userId ? await getApplicationsByUser(userId) : []
+  const applications = userId
+    ? await getApplications(`userId=${encodeURIComponent(userId)}`)
+    : []
 
   const page = Math.max(1, Number((await searchParams).page) || 1)
   const totalPages = Math.max(
@@ -45,7 +43,7 @@ export default async function MyApplicationsPage({
     safePage * APPLICATIONS_PER_PAGE
   )
 
-  const countByStatus = (status: Application["status"]) =>
+  const countByStatus = (status: ApplicationRow["status"]) =>
     applications.filter((application) => application.status === status).length
   const successRate = applications.length
     ? Math.round((countByStatus("Hired") / applications.length) * 100)
@@ -93,7 +91,7 @@ function ApplicationsTable({
   page,
   totalPages,
 }: {
-  applications: Application[]
+  applications: ApplicationRow[]
   total: number
   page: number
   totalPages: number
@@ -173,7 +171,7 @@ function ApplicationsTable({
 
 // Optional snapshot fields, so "Full-time • Remote" only renders what was
 // saved with the application.
-function JobMeta({ application }: { application: Application }) {
+function JobMeta({ application }: { application: ApplicationRow }) {
   const parts = [application.jobType, application.location].filter(Boolean)
   if (parts.length === 0) return null
 

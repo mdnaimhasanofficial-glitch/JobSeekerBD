@@ -17,8 +17,8 @@ export default function ThemeToggle() {
       className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted/40 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
     >
       {/* Both icons rendered; CSS decides visibility (no hydration mismatch) */}
-      <Sun className="h-4 w-4 block dark:hidden" />
-      <Moon className="h-4 w-4 hidden dark:block" />
+      <Sun className="block h-4 w-4 dark:hidden" />
+      <Moon className="hidden h-4 w-4 dark:block" />
     </button>
   )
 }

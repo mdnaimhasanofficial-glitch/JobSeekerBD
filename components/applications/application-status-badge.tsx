@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import type { ApplicationStatus } from "@/lib/api/applications"
+import type { ApplicationStatus } from "@/lib/types/applications"
 
 // Colored status pill for an application. Shared by the seeker's
 // "My Applications" list and the recruiter's review pipeline.
@@ -12,6 +12,10 @@ const STATUS_BADGE: Record<ApplicationStatus, string> = {
   Hired: "bg-green-500/10 text-green-600 dark:text-green-400",
 }
 
-export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }) {
+export function ApplicationStatusBadge({
+  status,
+}: {
+  status: ApplicationStatus
+}) {
   return <Badge className={STATUS_BADGE[status]}>{status}</Badge>
 }

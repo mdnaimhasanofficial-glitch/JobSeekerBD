@@ -102,7 +102,9 @@ export function LoginForm({
 
   const inputClasses = (hasError?: string) =>
     `h-12 rounded-xl border bg-[#0c0c12] pl-11 text-zinc-100 text-sm transition-colors placeholder:text-zinc-500 focus-visible:ring-indigo-500/40 ${
-      hasError ? "border-red-500/70 focus-visible:ring-red-500/40" : "border-zinc-800 focus-visible:border-indigo-500/60"
+      hasError
+        ? "border-red-500/70 focus-visible:ring-red-500/40"
+        : "border-zinc-800 focus-visible:border-indigo-500/60"
     }`
 
   return (
@@ -151,7 +153,9 @@ export function LoginForm({
                 className={inputClasses(errors.email)}
               />
             </div>
-            <FieldError className="text-xs text-red-400">{errors.email}</FieldError>
+            <FieldError className="text-xs text-red-400">
+              {errors.email}
+            </FieldError>
           </Field>
 
           {/* Password */}

@@ -21,6 +21,14 @@ export const auth = betterAuth({
         input: true,
         defaultValue: "seeker" satisfies Role,
       },
+      // Becomes true in the database after a verified Stripe payment.
+      // `input: false` means clients can never send it — only the server
+      // can flip it (see setUserPremium below).
+      premium: {
+        type: "boolean",
+        input: false,
+        defaultValue: false,
+      },
     },
   },
   // সুরক্ষিত এবং সঠিক উপায়ে বডি চেক ও রোল হ্যান্ডেল করা
@@ -56,3 +64,13 @@ export const auth = betterAuth({
     client,
   }),
 })
+
+// Mark a user as premium after their Stripe payment was verified.
+// Called from the pricing success page. We match on email because the
+// success page already has it from the signed-in session.
+export const setUserPremium = async (email: string) => {
+  await db.collection("user").updateOne(
+    { email: email }, // find the user by email
+    { $set: { premium: true } } // flip the flag (safe to run twice)
+  )
+}

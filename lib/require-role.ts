@@ -19,7 +19,10 @@ export async function requireRole(role: Role) {
   }
 
   const userRole = (session.user.role || "").toLowerCase() as Role
-  if (!["seeker", "recruiter", "admin"].includes(userRole) || userRole !== role) {
+  if (
+    !["seeker", "recruiter", "admin"].includes(userRole) ||
+    userRole !== role
+  ) {
     // Role mismatch: destroy the session so the user is logged out.
     await auth.api.signOut({ headers: requestHeaders })
     redirect("/sign-in")

@@ -2,18 +2,17 @@ import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
+// Subscribe to window size changes and return true on screens < 768px.
+// useSyncExternalStore is React's built-in way to read browser values
+// that can change over time (no useEffect/setState needed).
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
-
-  return !!isMobile
+  return React.useSyncExternalStore(
+    (onStoreChange) => {
+      const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+      mql.addEventListener("change", onStoreChange)
+      return () => mql.removeEventListener("change", onStoreChange)
+    },
+    () => window.innerWidth < MOBILE_BREAKPOINT, // on the client
+    () => false // on the server (unknown size → desktop layout)
+  )
 }

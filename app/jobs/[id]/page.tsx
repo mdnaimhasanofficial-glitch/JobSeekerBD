@@ -101,7 +101,7 @@ export default async function JobDetailsPage({
     responsibilities.length > 0 ? responsibilities : FALLBACK_RESPONSIBILITIES
   const fallbackRequirements =
     requirements.length > 0 ? requirements : FALLBACK_REQUIREMENTS
-  const benefits =
+  const benefits: Array<{ icon: LucideIcon; label: string }> =
     job.benefits?.map((label: string, i: number) => ({
       icon: BENEFIT_ICONS[i % BENEFIT_ICONS.length],
       label,
@@ -262,7 +262,7 @@ function CompanyOverview({ job }: { job: Job }) {
     <aside className="rounded-2xl border bg-card p-5">
       <h2 className="text-lg font-semibold tracking-tight">Company Overview</h2>
 
-      <div className="mt-4 aspect-16/10 overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-muted to-background">
+      <div className="mt-4 aspect-16/10 overflow-hidden rounded-xl border border-border/70 bg-linear-to-br from-muted to-background">
         {job.companyLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
